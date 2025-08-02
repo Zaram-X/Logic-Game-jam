@@ -2,12 +2,14 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-   public static GameManager Instance;
+    public static GameManager Instance;
 
     [Header("Loop Progress")]
     public int segmentsCollected = 0;
     public int requiredSegments = 5;
     public float speedMultiplier = 1f;
+    public float maxSpeedMultiplier = 3f;
+
 
     [Header("Game State")]
     public bool isGameOver = false;
@@ -34,8 +36,10 @@ public class GameManager : MonoBehaviour
     public void PassGoalGate()
     {
         speedMultiplier *= 1.5f;
+        speedMultiplier = Mathf.Min(speedMultiplier, maxSpeedMultiplier); // ✅ Apply cap
         segmentsCollected = 0;
-        Debug.Log("✅ Goal Passed! Speed increased.");
+
+        Debug.Log("✅ Goal Passed! Speed increased to " + speedMultiplier);
     }
 
     public void GameOver(string reason)

@@ -4,18 +4,20 @@ using System.Collections.Generic;
 public class SpawnTile : MonoBehaviour
 {
     [Header("Chunk Settings")]
-    public GameObject[] trackChunks; // Base Chunk, Pit Chunk, etc.
-    public GameObject referenceObject; // Usually the player or first tile
+    public GameObject[] trackChunks;
+    public GameObject referenceObject;
     public float timeOffset = 0.5f;
     public float distanceBetweenChunks = 3f;
 
-    [Header("Segment Settings")]
+    [Header("Segment & Goal Settings")]
     public GameObject cageSegmentPrefab;
-    public float segmentSpawnChance = 0.4f;
+    public GameObject goalGatePrefab;
+    public float segmentHeight = 3.5f;
+    public float gateHeight = 5f;
 
     [Header("Cleanup Settings")]
     public Transform player;
-    public float cleanupDistance = 25f; // How far behind before a chunk is destroyed
+    public float cleanupDistance = 25f;
 
     private Vector3 previousChunkPosition;
     private Vector3 direction = Vector3.forward;
@@ -23,12 +25,20 @@ public class SpawnTile : MonoBehaviour
 
     private List<GameObject> activeChunks = new List<GameObject>();
 
+    // ⏱️ Timed Cycle Controls
+    [Header("Cycle Settings")]
+    public float spawnCycleDuration = 60f;
+    private float cycleTimer = 0f;
+
+    public int segmentsPerCycle = 15;
+    private int segmentsSpawnedThisCycle = 0;
+    private bool goalGateSpawned = false;
+
     void Start()
     {
         previousChunkPosition = referenceObject.transform.position;
         lastSpawnTime = Time.time;
 
-        // Spawn initial chunks
         for (int i = 0; i < 5; i++)
         {
             SpawnNextChunk();
@@ -37,10 +47,22 @@ public class SpawnTile : MonoBehaviour
 
     void Update()
     {
-        if (Time.time - lastSpawnTime > timeOffset)
+        cycleTimer += Time.deltaTime;
+
+        float adjustedOffset = timeOffset / GameManager.Instance.speedMultiplier;
+
+        if (Time.time - lastSpawnTime > adjustedOffset)
         {
             SpawnNextChunk();
             lastSpawnTime = Time.time;
+        }
+
+        // Reset cycle after finishing segment + gate
+        if (segmentsSpawnedThisCycle >= segmentsPerCycle && goalGateSpawned)
+        {
+            segmentsSpawnedThisCycle = 0;
+            goalGateSpawned = false;
+            cycleTimer = 0f;
         }
 
         CleanupOldChunks();
@@ -57,17 +79,30 @@ public class SpawnTile : MonoBehaviour
         previousChunkPosition = spawnPos;
         activeChunks.Add(newChunk);
 
-        MaybeSpawnSegment(spawnPos);
+        // Timed controlled spawning
+        if (segmentsSpawnedThisCycle < segmentsPerCycle)
+        {
+            SpawnSegment(spawnPos);
+            segmentsSpawnedThisCycle++;
+        }
+        else if (!goalGateSpawned)
+        {
+            SpawnGoalGate(spawnPos);
+            goalGateSpawned = true;
+        }
     }
 
-    void MaybeSpawnSegment(Vector3 spawnPos)
+    void SpawnSegment(Vector3 spawnPos)
     {
-        if (Random.value < segmentSpawnChance)
-    {
-        Vector3 offset = new Vector3(0, 3.5f, 0); // above tile
-        Quaternion rotation = Quaternion.Euler(0, 90f, 0); // Rotate 90° on Y axis
+        Vector3 offset = new Vector3(0, segmentHeight, 0);
+        Quaternion rotation = Quaternion.Euler(0, 90f, 0);
         Instantiate(cageSegmentPrefab, spawnPos + offset, rotation);
     }
+
+    void SpawnGoalGate(Vector3 spawnPos)
+    {
+        Vector3 offset = new Vector3(0, gateHeight, 0);
+        Instantiate(goalGatePrefab, spawnPos + offset, Quaternion.identity);
     }
 
     void CleanupOldChunks()

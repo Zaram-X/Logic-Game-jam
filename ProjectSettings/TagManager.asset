@@ -10,6 +10,7 @@ TagManager:
   - SpawnedObstacle
   - ObstacleSpawnPoint
   - CageSegment
+  - GoalGate
   layers:
   - Default
   - TransparentFX
