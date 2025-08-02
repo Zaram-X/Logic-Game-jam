@@ -3,92 +3,51 @@ using System.Collections.Generic;
 
 public class SpawnTile : MonoBehaviour
 {
-    [Header("Tile Spawning")]
-    public GameObject tileToSpawn;
-    public GameObject referenceObject;
-    public float timeOffset = 0.4f;
-    public float distanceBetweenTiles = 5.0f;
-    public float randomValue = 0.8f;
-    public int poolSize = 20;
+     [Header("Chunk Settings")]
+    public GameObject[] trackChunks; // Assign Base Chunk, Small Pit Chunk, Big Pit Chunk, etc.
+    public GameObject referenceObject; // Usually the player or first tile
+    public float timeOffset = 0.5f;
+    public float distanceBetweenChunks = 3f;
 
-    private Vector3 previousTilePosition;
-    private float startTime;
+    [Header("Spawn Direction")]
+    private Vector3 previousChunkPosition;
+    private Vector3 direction = Vector3.forward;
 
-    private Vector3 direction;
-    private Vector3 mainDirection = Vector3.forward;
-    private Vector3 otherDirection = Vector3.right;
-
-    private Queue<GameObject> tilePool = new Queue<GameObject>();
-    private ObstacleManager obstacleManager;
+    private float lastSpawnTime;
 
     void Start()
     {
-        obstacleManager = GetComponent<ObstacleManager>();
-        previousTilePosition = referenceObject.transform.position;
-        direction = mainDirection;
-        startTime = Time.time;
+        previousChunkPosition = referenceObject.transform.position;
+        lastSpawnTime = Time.time;
 
-        // Preload tile pool
-        for (int i = 0; i < poolSize; i++)
+        // Spawn a few chunks to start the loop
+        for (int i = 0; i < 5; i++)
         {
-            GameObject tile = Instantiate(tileToSpawn, Vector3.zero, Quaternion.identity);
-            tile.SetActive(false);
-            tilePool.Enqueue(tile);
+            SpawnNextChunk();
         }
-
-        // Spawn the first tile
-        SpawnNextTile();
     }
 
     void Update()
     {
-        if (Time.time - startTime > timeOffset)
+        if (Time.time - lastSpawnTime > timeOffset)
         {
-            startTime = Time.time;
-            SpawnNextTile();
+            SpawnNextChunk();
+            lastSpawnTime = Time.time;
         }
     }
 
-    void SpawnNextTile()
+    void SpawnNextChunk()
     {
-        // Choose direction
-        if (Random.value < randomValue)
-        {
-            direction = mainDirection;
-        }
-        else
-        {
-            Vector3 temp = direction;
-            direction = otherDirection;
-            mainDirection = direction;
-            otherDirection = temp;
-        }
+        // Pick a random chunk from the list
+        int index = Random.Range(0, trackChunks.Length);
+        GameObject chunkPrefab = trackChunks[index];
 
-        // Calculate spawn position
-        Vector3 spawnPos = previousTilePosition + direction * distanceBetweenTiles;
+        // Determine spawn position
+        Vector3 spawnPos = previousChunkPosition + direction * distanceBetweenChunks;
 
-        // Get tile from pool
-        GameObject tile = tilePool.Dequeue();
-        tile.transform.position = spawnPos;
-        tile.transform.rotation = Quaternion.LookRotation(direction);
-        tile.SetActive(true);
-
-        // Destroy old obstacles on reused tile
-        foreach (Transform child in tile.transform)
-        {
-            if (child.CompareTag("SpawnedObstacle"))
-                Destroy(child.gameObject);
-        }
-
-        // Spawn obstacle
-        if (obstacleManager != null)
-            obstacleManager.SpawnObstacleOnTile(tile);
-
-        // Enqueue tile back to pool
-        tilePool.Enqueue(tile);
-
-        // Update position for next tile
-        previousTilePosition = spawnPos;
+        // Spawn chunk
+        GameObject newChunk = Instantiate(chunkPrefab, spawnPos, Quaternion.LookRotation(direction));
+        previousChunkPosition = spawnPos;
     }
 }
 
