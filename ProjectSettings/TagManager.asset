@@ -9,6 +9,7 @@ TagManager:
   - Obstacle
   - SpawnedObstacle
   - ObstacleSpawnPoint
+  - CageSegment
   layers:
   - Default
   - TransparentFX

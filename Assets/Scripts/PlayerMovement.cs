@@ -10,12 +10,12 @@ public class PlayerMovement : MonoBehaviour
     private CharacterController controller;
     private Vector3 velocity;
     private float originalHeight;
-    private bool isDucking = false;
+    //private bool isDucking = false;
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
-        originalHeight = controller.height;
+       //originalHeight = controller.height;
     }
 
     void Update()
@@ -23,7 +23,7 @@ public class PlayerMovement : MonoBehaviour
         HandleTurning();
         HandleMovement();
         HandleJump();
-        HandleDuck();
+        //HandleDuck();
         ApplyGravity();
 
         controller.Move(velocity * Time.deltaTime);
@@ -40,7 +40,9 @@ public class PlayerMovement : MonoBehaviour
     void HandleMovement()
     {
         // Forward movement only
-        Vector3 forwardMove = transform.forward * speed;
+        //Vector3 forwardMove = transform.forward * speed;
+        Vector3 forwardMove = transform.forward * speed * GameManager.Instance.speedMultiplier;
+
         velocity.x = forwardMove.x;
         velocity.z = forwardMove.z;
     }
@@ -65,7 +67,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void HandleDuck()
+    /*void HandleDuck()
     {
         if (Input.GetKeyDown(KeyCode.LeftControl) && !isDucking)
         {
@@ -80,6 +82,7 @@ public class PlayerMovement : MonoBehaviour
             controller.center = new Vector3(0, originalHeight / 2f, 0);
         }
     }
+    */
 }
 
   
