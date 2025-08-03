@@ -10,6 +10,9 @@ public class PlayerMovement : MonoBehaviour
     private CharacterController controller;
     private Vector3 velocity;
     private float originalHeight;
+
+   
+
     //private bool isDucking = false;
 
     void Start()
