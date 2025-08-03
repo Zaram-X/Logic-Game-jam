@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Loop Progress")]
     public int segmentsCollected = 0;
-    public int requiredSegments = 5;
+    public int requiredSegments = 12;
     public float speedMultiplier = 1f;
     public float maxSpeedMultiplier = 3f;
 

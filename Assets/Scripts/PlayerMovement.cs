@@ -15,7 +15,7 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         controller = GetComponent<CharacterController>();
-       //originalHeight = controller.height;
+        //originalHeight = controller.height;
     }
 
     void Update()
@@ -67,6 +67,15 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Pit"))
+        {
+            GameManager.Instance.GameOver("Fell into a pit!");
+        }
+    }
+
+
     /*void HandleDuck()
     {
         if (Input.GetKeyDown(KeyCode.LeftControl) && !isDucking)
@@ -85,4 +94,4 @@ public class PlayerMovement : MonoBehaviour
     */
 }
 
-  
+
