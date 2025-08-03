@@ -23,7 +23,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        HandleTurning();
+        //HandleTurning();
         HandleMovement();
         HandleJump();
         //HandleDuck();
@@ -32,13 +32,14 @@ public class PlayerMovement : MonoBehaviour
         controller.Move(velocity * Time.deltaTime);
     }
 
-    void HandleTurning()
+    /*void HandleTurning()
     {
         if (Input.GetKeyDown(KeyCode.A))
             transform.Rotate(0f, -90f, 0f);
         else if (Input.GetKeyDown(KeyCode.D))
             transform.Rotate(0f, 90f, 0f);
     }
+    */
 
     void HandleMovement()
     {
